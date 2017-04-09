@@ -17,18 +17,26 @@ You should have received a copy of the GNU General Public License
 along with ABTestServer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package models
+package controllers
 
-import java.util.UUID
+import javax.inject.Inject
 
-import play.api.libs.json.Json
+import com.datastax.driver.core.utils.UUIDs
+import models.EventCassRepository
+import models.json.Variation
+import play.api._
+import play.api.mvc._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import utils.Util._
 /**
   * Created by Bruno on 4/9/2017.
   */
-case class Event(id: UUID, name: String, userid:String, time:Long, metrics:Option[Map[String, String]], experiments: Map[String, String])
-
-
-object Event{
-  implicit val jsf = Json.format[Event]
+class EventController @Inject()(eventCassRepository: EventCassRepository) extends Controller{
+  def trackEvent(name:String) = Action.async(parse.json[models.json.EventTrackData]) { implicit request =>
+    val data = request.body
+    eventCassRepository.createEvent(models.Event(UUIDs.timeBased, name, data.userstate.userid, data.timestamp, data.metrics, data.userstate.experiments))
+      .map(x=>Ok("Created: "+x.toString))
+  }
 }
