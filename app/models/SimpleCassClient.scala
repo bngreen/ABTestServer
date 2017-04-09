@@ -66,10 +66,14 @@ class SimpleCassClient @Inject()(configuration: Configuration) {
           userid text,
           name text,
           metrics map<text, text>,
+          nmetrics map<text, double>,
           experiments map<text, text>
           );""")
       session.execute(
         """CREATE INDEX IF NOT EXISTS event_metric_key ON abtest.event (KEYS(metrics));"""
+      )
+      session.execute(
+        """CREATE INDEX IF NOT EXISTS event_nmetric_key ON abtest.event (KEYS(nmetrics));"""
       )
       session.execute(
         """CREATE INDEX IF NOT EXISTS event_experiment_key ON abtest.event (KEYS(experiments));"""

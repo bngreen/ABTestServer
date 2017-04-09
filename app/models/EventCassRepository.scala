@@ -39,11 +39,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class EventCassRepository @Inject()(client: SimpleCassClient) {
   import Utils._
 
-  private val insertIntoEventQuery = new BoundStatement(client.session.prepare("INSERT INTO abtest.event (id, time, userid, name, metrics, experiments) VALUES (?, ?, ?, ?, ?, ?);"))
+  private val insertIntoEventQuery = new BoundStatement(client.session.prepare("INSERT INTO abtest.event (id, time, userid, name, metrics, experiments, nmetrics) VALUES (?, ?, ?, ?, ?, ?, ?);"))
   def createEvent(event:Event) : Future[UUID] = {
     val id = UUIDs.random
     val m = toJavaMap(event.metrics)
-    client.session.executeAsync(insertIntoEventQuery.bind(id, new java.util.Date(event.time), event.userid, event.name, toJavaMap(event.metrics), toJavaMap(event.experiments)))
+    client.session.executeAsync(insertIntoEventQuery.bind(id, new java.util.Date(event.time), event.userid, event.name, toJavaMap(event.metrics), toJavaMap(event.experiments), toJavaMapD(event.nmetrics)))
     .toScalaFuture.map(x=>id)
   }
 }

@@ -1,6 +1,6 @@
 package utils
 
-import java.util
+import java.{lang, util}
 
 import play.api.libs.json._
 /**
@@ -20,6 +20,18 @@ object Util {
     map match {
       case Some(m) => toJavaMap(m)
       case None => new java.util.HashMap[A, B]()
+    }
+  }
+
+  def toJavaMapD(map:Option[Map[String, Double]]) : java.util.Map[String, java.lang.Double] = {
+    map match {
+      case Some(m) => {
+        var jmap = new java.util.HashMap[String, java.lang.Double]()
+        for(kv <- m)
+          jmap.put(kv._1, new lang.Double(kv._2))
+        jmap
+      }
+      case None => new java.util.HashMap[String, java.lang.Double]()
     }
   }
 

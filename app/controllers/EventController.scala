@@ -34,7 +34,7 @@ class EventController @Inject()(@Named("event-actor") eventActor: ActorRef) exte
 
   def trackEvent(name:String) = Action.async(parse.json[models.json.EventTrackData]) { implicit request =>
     val data = request.body
-    val event = models.Event(UUIDs.timeBased, name, data.userstate.userid, data.timestamp, data.metrics, data.userstate.experiments)
+    val event = models.Event(UUIDs.timeBased, name, data.userstate.userid, data.timestamp, data.metrics, data.nmetrics, data.userstate.experiments)
     eventActor ! event
     Future(Ok)
   }
