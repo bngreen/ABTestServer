@@ -74,6 +74,9 @@ class SimpleCassClient @Inject()(configuration: Configuration) {
       session.execute(
         """CREATE INDEX IF NOT EXISTS event_experiment_key ON abtest.event (KEYS(experiments));"""
       )
+      session.execute(
+        """CREATE INDEX IF NOT EXISTS event_name ON abtest.event (name);"""
+      )
     }
   createSchema()
 }
