@@ -48,14 +48,12 @@ class ExperimentCassRepository @Inject()(client: SimpleCassClient) {
       val stmt = insertIntoExperimentQuery
       val varquery = insertIntoVariationQuery
       val id = UUIDs.timeBased
-      for {
-        uuid <- client.session.executeAsync(stmt.bind(id, experiment.name, experiment.description, new java.util.Date(experiment.starttime))).toScalaFuture.map(rs => id)
-        _ <- Future(experiment.variations.map(v => {
-          var vid = UUIDs.timeBased
-          client.session.executeAsync(varquery.bind(vid, uuid, v.name, v.description, new java.lang.Double(v.rate))).toScalaFuture.map(rs => vid)
-        }))
-      }
-      yield uuid
+      experiment.variations.map(v => {
+        var vid = UUIDs.timeBased
+        client.session.execute(varquery.bind(vid, id, v.name, v.description, new java.lang.Double(v.rate)))
+      })
+      client.session.execute(stmt.bind(id, experiment.name, experiment.description, new java.util.Date(experiment.starttime)))
+      Future(id)
     }
 
     private def variations(row: Row) = {
