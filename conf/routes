@@ -5,8 +5,8 @@
 # Home page
 GET     /                           controllers.Application.index
 
-POST    /api/experiment             controllers.ExperimentController.createExperiment
-GET     /api/experiment/*name             controllers.ExperimentController.getExperiment(name)
+POST    /api/experiment                             controllers.ExperimentController.createExperiment
+GET     /api/experiment/*name                       controllers.ExperimentController.getExperiment(name)
 POST     /api/experiment/*name/activate             controllers.ExperimentController.activateExperiment(name)
 
 # Map static resources from the /public folder to the /assets URL path
