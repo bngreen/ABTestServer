@@ -17,17 +17,22 @@ You should have received a copy of the GNU General Public License
 along with ABTestServer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package models.json
+package actors
 
-import models.UserState
-import play.api.libs.json.Json
+import javax.inject.Inject
+
+import akka.actor.Actor
+import models.EventCassRepository
 
 /**
   * Created by Bruno on 4/9/2017.
   */
-case class EventTrackData(userstate: UserState, timestamp:Long, metrics:Option[Map[String, String]])
-
-object EventTrackData{
-  implicit val jsf = Json.format[EventTrackData]
+class CassandraEventActor @Inject()(eventCassRepository: EventCassRepository) extends Actor{
+  def receive = {
+    case etd : models.Event => eventCassRepository.createEvent(etd)
+  }
 }
 
+object CassandraEventActor {
+
+}

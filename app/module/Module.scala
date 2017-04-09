@@ -17,17 +17,18 @@ You should have received a copy of the GNU General Public License
 along with ABTestServer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package models.json
-
-import models.UserState
-import play.api.libs.json.Json
+package module
 
 /**
   * Created by Bruno on 4/9/2017.
   */
-case class EventTrackData(userstate: UserState, timestamp:Long, metrics:Option[Map[String, String]])
+import com.google.inject.AbstractModule
+import play.api.libs.concurrent.AkkaGuiceSupport
 
-object EventTrackData{
-  implicit val jsf = Json.format[EventTrackData]
+import actors.CassandraEventActor
+
+class Module extends AbstractModule with AkkaGuiceSupport {
+  def configure = {
+    bindActor[CassandraEventActor]("event-actor")
+  }
 }
-

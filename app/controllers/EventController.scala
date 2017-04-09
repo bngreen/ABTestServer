@@ -19,24 +19,23 @@ along with ABTestServer.  If not, see <http://www.gnu.org/licenses/>.
 
 package controllers
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 
+import akka.actor.ActorRef
 import com.datastax.driver.core.utils.UUIDs
-import models.EventCassRepository
-import models.json.Variation
-import play.api._
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import utils.Util._
 /**
   * Created by Bruno on 4/9/2017.
   */
-class EventController @Inject()(eventCassRepository: EventCassRepository) extends Controller{
+class EventController @Inject()(@Named("event-actor") eventActor: ActorRef) extends Controller{
+
   def trackEvent(name:String) = Action.async(parse.json[models.json.EventTrackData]) { implicit request =>
     val data = request.body
-    eventCassRepository.createEvent(models.Event(UUIDs.timeBased, name, data.userstate.userid, data.timestamp, data.metrics, data.userstate.experiments))
-      .map(x=>Ok("Created: "+x.toString))
+    val event = models.Event(UUIDs.timeBased, name, data.userstate.userid, data.timestamp, data.metrics, data.userstate.experiments)
+    eventActor ! event
+    Future(Ok)
   }
 }
