@@ -21,7 +21,7 @@ class ExperimentController @Inject()(experimentCassRepository: ExperimentCassRep
       val experiment = request.body
       val totalRate = experiment.variations.map(_.rate).sum
       if (totalRate < 0.9999 || totalRate > 1.0099)
-        Future(BadRequest("Varitations rates should add up to 1"))
+        Future(BadRequest("Variations rates should add up to 1"))
       else
         for{
           exists <- experimentCassRepository.exists(experiment.name)
