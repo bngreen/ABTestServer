@@ -26,7 +26,7 @@ import play.api.libs.json.Json
 /**
   * Created by Bruno on 4/9/2017.
   */
-case class Event(id: UUID, name: String, userid:String, time:Long, metrics:Option[Map[String, String]], nmetrics:Option[Map[String, Double]], experiments: Map[String, String])
+case class Event(name: String, userid:String, time:Long, metrics:Option[Map[String, String]], nmetrics:Option[Map[String, Double]], experiments: Map[String, String])
 
 
 object Event{

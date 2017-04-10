@@ -22,14 +22,14 @@ package models
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
-import com.datastax.driver.core.BoundStatement
+import com.datastax.driver.core.{BoundStatement, ResultSet}
 import com.datastax.driver.core.utils.UUIDs
+import play.api.Logger
 
 import scala.collection.JavaConversions._
 import utils.Util._
 
 import scala.concurrent.Future
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -38,14 +38,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 @Singleton
 class EventCassRepository @Inject()(client: SimpleCassClient) {
   import Utils._
-
-  private val insertIntoEventQuery = new BoundStatement(client.session.prepare("INSERT INTO abtest.event (id, time, userid, name, metrics, experiments, nmetrics) VALUES (?, ?, ?, ?, ?, ?, ?);"))
-  def createEvent(event:Event) : Future[UUID] = {
-    val id = UUIDs.random
-    val m = toJavaMap(event.metrics)
-    //client.session.executeAsync(insertIntoEventQuery.bind(id, new java.util.Date(event.time), event.userid, event.name, toJavaMap(event.metrics), toJavaMap(event.experiments), toJavaMapD(event.nmetrics)))
-    //.toScalaFuture.map(x=>id)
-    client.session.execute(insertIntoEventQuery.bind(id, new java.util.Date(event.time), event.userid, event.name, toJavaMap(event.metrics), toJavaMap(event.experiments), toJavaMapD(event.nmetrics)))
-    Future(id)
+  val insertIntoEventQuery = client.session.prepare("INSERT INTO abtest.event (time, userid, name, metrics, experiments, nmetrics) VALUES (?, ?, ?, ?, ?, ?);")
+  def createEvent(event:Event) : Future[Unit] = {
+    client.session.executeAsync(new BoundStatement(insertIntoEventQuery).bind(new java.util.Date(event.time), event.userid, event.name, toJavaMap(event.metrics), toJavaMap(event.experiments), toJavaMapD(event.nmetrics)))
+    .toScalaFuture.map(x=>()).recover {
+      case e : Exception => {
+        Logger.error("Error on event creation", e)
+        createEvent(event)
+      }
+    }
   }
 }

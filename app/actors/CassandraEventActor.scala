@@ -19,7 +19,7 @@ along with ABTestServer.  If not, see <http://www.gnu.org/licenses/>.
 
 package actors
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
 import akka.actor.Actor
 import models.EventCassRepository
@@ -27,6 +27,7 @@ import models.EventCassRepository
 /**
   * Created by Bruno on 4/9/2017.
   */
+@Singleton
 class CassandraEventActor @Inject()(eventCassRepository: EventCassRepository) extends Actor{
   def receive = {
     case etd : models.Event => eventCassRepository.createEvent(etd)

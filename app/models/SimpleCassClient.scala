@@ -61,13 +61,13 @@ class SimpleCassClient @Inject()(configuration: Configuration) {
       )
       session.execute(
         """CREATE TABLE IF NOT EXISTS abtest.event (
-          id uuid PRIMARY KEY,
           time timestamp,
           userid text,
           name text,
           metrics map<text, text>,
           nmetrics map<text, double>,
-          experiments map<text, text>
+          experiments map<text, text>,
+          PRIMARY KEY (name, time, userid)
           );""")
       session.execute(
         """CREATE INDEX IF NOT EXISTS event_metric_key ON abtest.event (KEYS(metrics));"""
@@ -77,9 +77,6 @@ class SimpleCassClient @Inject()(configuration: Configuration) {
       )
       session.execute(
         """CREATE INDEX IF NOT EXISTS event_experiment_key ON abtest.event (KEYS(experiments));"""
-      )
-      session.execute(
-        """CREATE INDEX IF NOT EXISTS event_name ON abtest.event (name);"""
       )
     }
   createSchema()

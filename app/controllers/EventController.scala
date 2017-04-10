@@ -19,7 +19,7 @@ along with ABTestServer.  If not, see <http://www.gnu.org/licenses/>.
 
 package controllers
 
-import javax.inject.{Inject, Named}
+import javax.inject.{Inject, Named, Singleton}
 
 import akka.actor.ActorRef
 import com.datastax.driver.core.utils.UUIDs
@@ -30,11 +30,12 @@ import scala.concurrent.Future
 /**
   * Created by Bruno on 4/9/2017.
   */
+@Singleton
 class EventController @Inject()(@Named("event-actor") eventActor: ActorRef) extends Controller{
 
   def trackEvent(name:String) = Action.async(parse.json[models.json.EventTrackData]) { implicit request =>
     val data = request.body
-    val event = models.Event(UUIDs.timeBased, name, data.userstate.userid, data.timestamp, data.metrics, data.nmetrics, data.userstate.experiments)
+    val event = models.Event(name, data.userstate.userid, data.timestamp, data.metrics, data.nmetrics, data.userstate.experiments)
     eventActor ! event
     Future(Ok)
   }
